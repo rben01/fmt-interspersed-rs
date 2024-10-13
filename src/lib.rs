@@ -1,4 +1,4 @@
-use std::{fmt, marker::PhantomData};
+use std::fmt;
 
 #[cfg(test)]
 mod tests;
@@ -6,14 +6,13 @@ mod tests;
 /// Helper for writing string-separated iterator an existing Writer without intermediate
 /// allocations
 #[derive(Debug, Clone)]
-pub struct FmtInterspersed<I, T, S, F> {
+pub struct FmtInterspersed<I, S, F> {
 	iter: I,
 	separator: S,
 	write_fn: F,
-	phantom: PhantomData<T>,
 }
 
-impl<I, T, S> FmtInterspersed<I, T, S, fn(&mut fmt::Formatter, T) -> fmt::Result>
+impl<I, T, S> FmtInterspersed<I, S, fn(&mut fmt::Formatter, T) -> fmt::Result>
 where
 	T: fmt::Display,
 {
@@ -33,8 +32,8 @@ where
 	}
 }
 
-impl<I, T, S, F> FmtInterspersed<I, T, S, F> {
-	pub fn new_with_fn<J>(iter: J, write_fn: F, separator: S) -> Self
+impl<I, S, F> FmtInterspersed<I, S, F> {
+	pub fn new_with_fn<T, J>(iter: J, write_fn: F, separator: S) -> Self
 	where
 		J: IntoIterator<IntoIter = I>,
 		I: Iterator<Item = T>,
@@ -44,12 +43,11 @@ impl<I, T, S, F> FmtInterspersed<I, T, S, F> {
 			iter: iter.into_iter(),
 			separator,
 			write_fn,
-			phantom: PhantomData,
 		}
 	}
 }
 
-impl<I, T, S, F> fmt::Display for FmtInterspersed<I, T, S, F>
+impl<I, T, S, F> fmt::Display for FmtInterspersed<I, S, F>
 where
 	S: fmt::Display,
 	I: Iterator<Item = T> + Clone,
@@ -60,7 +58,6 @@ where
 			iter,
 			separator,
 			write_fn,
-			phantom: _,
 		} = self;
 		let mut iter = iter.clone();
 
