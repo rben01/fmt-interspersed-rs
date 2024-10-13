@@ -32,6 +32,7 @@ impl<I, T, S, F> StringIntersperser<I, T, S, F> {
 	pub fn new_with_fn<J>(iter: J, write_fn: F, separator: S) -> Self
 	where
 		J: IntoIterator<IntoIter = I>,
+		F: Fn(&mut fmt::Formatter, T) -> fmt::Result,
 	{
 		Self {
 			iter: iter.into_iter(),
@@ -80,7 +81,10 @@ mod test {
 			T: fmt::Display + Clone,
 		{
 			assert_eq!(
-				format!("{}", StringIntersperser::new(v, separator)),
+				format!(
+					"{}",
+					StringIntersperser::new_with_fn(v, |f, x| write!(f, "{x}"), separator)
+				),
 				expected
 			);
 		}
