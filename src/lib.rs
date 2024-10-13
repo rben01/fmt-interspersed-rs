@@ -1,4 +1,6 @@
-use std::fmt;
+#![no_std]
+
+use core::fmt;
 
 #[cfg(test)]
 mod tests;

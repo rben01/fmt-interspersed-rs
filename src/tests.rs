@@ -1,5 +1,6 @@
+extern crate std;
 use crate::FmtInterspersed;
-use std::fmt;
+use std::{fmt, format, prelude::rust_2021::*, vec};
 
 #[test]
 fn test_identity() {

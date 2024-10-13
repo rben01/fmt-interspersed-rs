@@ -4,6 +4,8 @@
 	rust-version = "1.56"
 	version = "0.1.0"
 
+	description = "A no-std crate to write an iterator's items, interspersed with a separator, to a destination"
+	license = "MIT"
 
 [lib]
 	crate-type = ["rlib"]
