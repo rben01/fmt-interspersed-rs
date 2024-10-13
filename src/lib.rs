@@ -26,7 +26,7 @@ where
 		where
 			T: fmt::Display,
 		{
-			write!(w, "{x}")
+			write!(w, "{}", x)
 		}
 
 		FmtInterspersed::new_with_fn(iter, write_identity, separator)
@@ -67,7 +67,7 @@ where
 		if let Some(x) = iter.next() {
 			write_fn(f, x)?;
 			for x in iter {
-				write!(f, "{separator}")?;
+				write!(f, "{}", separator)?;
 				write_fn(f, x)?;
 			}
 		}
