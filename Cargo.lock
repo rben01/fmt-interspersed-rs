@@ -3,5 +3,5 @@
 version = 3
 
 [[package]]
-name = "string-intersperse"
+name = "intersperse-fmt"
 version = "0.1.0"

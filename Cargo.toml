@@ -1,6 +1,6 @@
 [package]
 	edition = "2021"
-	name = "string-intersperse"
+	name = "intersperse-fmt"
 	rust-version = "1.70"
 	version = "0.1.0"
 
