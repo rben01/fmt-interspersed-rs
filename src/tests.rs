@@ -1,4 +1,4 @@
-use crate::FmtSeparated;
+use crate::FmtInterspersed;
 use std::fmt;
 
 #[test]
@@ -8,11 +8,14 @@ fn test_identity() {
 		T: fmt::Display,
 		S: fmt::Display,
 	{
-		assert_eq!(format!("{}", FmtSeparated::new(&v, &separator)), expected);
+		assert_eq!(
+			format!("{}", FmtInterspersed::new(&v, &separator)),
+			expected
+		);
 		assert_eq!(
 			format!(
 				"{}",
-				FmtSeparated::new_with_fn(&v, |f, x| write!(f, "{x}"), &separator)
+				FmtInterspersed::new_with_fn(&v, |f, x| write!(f, "{x}"), &separator)
 			),
 			expected
 		);
@@ -50,7 +53,7 @@ fn test_functions() {
 		S: fmt::Display,
 	{
 		assert_eq!(
-			format!("{}", FmtSeparated::new_with_fn(&v, f, separator)),
+			format!("{}", FmtInterspersed::new_with_fn(&v, f, separator)),
 			expected
 		);
 	}

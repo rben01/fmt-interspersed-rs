@@ -1,6 +1,6 @@
 [package]
 	edition = "2021"
-	name = "fmt-separated"
+	name = "fmt-interspersed"
 	rust-version = "1.56"
 	version = "0.1.0"
 
