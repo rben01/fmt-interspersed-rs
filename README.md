@@ -43,6 +43,16 @@ write!(&mut s, "{fmt_sep}").unwrap();
 assert_eq!("01-04-09-16-25", s);
 ```
 
+Since implementing `Display` gets you `ToString` for free, we can rewrite the above
+more simply as
+
+```rust
+let v = 1_i32..=5;
+let fmt_sep = FmtInterspersed::new_with_fn(v, |f, n| write!(f, "{:02}", n.pow(2)), '-');
+
+assert_eq!("01-04-09-16-25", fmt_sep.to_string());
+```
+
 An empty iterator produces no output, and an iterator with one item produces the item
 without the separator.
 
