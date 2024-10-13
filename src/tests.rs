@@ -15,7 +15,7 @@ fn test_identity() {
 		assert_eq!(
 			format!(
 				"{}",
-				FmtInterspersed::new_with_fn(&v, |f, x| write!(f, "{x}"), &separator)
+				FmtInterspersed::new_with_fn(&v, |f, x| write!(f, "{}", x), &separator)
 			),
 			expected
 		);
@@ -88,7 +88,7 @@ fn test_functions() {
 	test_case(
 		r#"(x: "a", y: 1); (x: "b", y: 2); (x: "c", y: 3)"#,
 		vec![("a", 1), ("b", 2), ("c", 3)],
-		|f, (x, y)| write!(f, "(x: {x:?}, y: {y})"),
+		|f, (x, y)| write!(f, "(x: {:?}, y: {})", x, y),
 		"; ",
 	);
 }
