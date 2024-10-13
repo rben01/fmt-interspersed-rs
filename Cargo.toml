@@ -1,7 +1,7 @@
 [package]
 	edition = "2021"
-	name = "intersperse-fmt"
-	rust-version = "1.70"
+	name = "fmt-separated"
+	rust-version = "1.56"
 	version = "0.1.0"
 
 
