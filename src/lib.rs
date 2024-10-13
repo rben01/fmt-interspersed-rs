@@ -65,11 +65,12 @@ where
 
 		if let Some(x) = iter.next() {
 			write_fn(f, x)?;
+			for x in iter {
+				write!(f, "{separator}")?;
+				write_fn(f, x)?;
+			}
 		}
-		for x in iter {
-			write!(f, "{separator}")?;
-			write_fn(f, x)?;
-		}
+
 		Ok(())
 	}
 }
