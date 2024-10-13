@@ -71,7 +71,8 @@ without the separator.
    will clone the underlying `Vec<T>` when cloned, if a `&Vec<T>` or `&[T]` will do
    instead.
 
-1. The type signature of the function passed to `new_with_fn` must _exactly_ match the
-   type yielded by the iterator. In the second example above, the signature _must_ be
-   `|f, &(x, y)|`, and not, say, `|f, (x, y)|` (which you might normally write in
-   non-generic code, expecting the references to magically be moved inside the tuple).
+1. The type of the second argument in the function passed to `new_with_fn` must
+   _exactly_ match the type yielded by the iterator. In the second example above, the
+   signature _must_ be `|f, &(x, y)|`, and not, say, `|f, (x, y)|` (which you might
+   normally write in non-generic code, expecting the references to magically be moved
+   inside the tuple), because the iterator yields references to tuples.
