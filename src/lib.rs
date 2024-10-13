@@ -21,14 +21,7 @@ where
 		J: IntoIterator<IntoIter = I>,
 		I: Iterator<Item = T>,
 	{
-		fn write_identity<T>(w: &mut fmt::Formatter, x: T) -> fmt::Result
-		where
-			T: fmt::Display,
-		{
-			write!(w, "{}", x)
-		}
-
-		FmtInterspersed::new_with_fn(iter, write_identity, separator)
+		FmtInterspersed::new_with_fn(iter, |f, x| write!(f, "{}", x), separator)
 	}
 }
 
