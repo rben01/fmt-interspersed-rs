@@ -1,7 +1,11 @@
 use std::{fmt, marker::PhantomData};
 
+#[cfg(test)]
+mod tests;
+
 /// Helper for writing string-separated iterator an existing Writer without intermediate
 /// allocations
+#[derive(Debug, Clone)]
 pub struct StringIntersperser<I, T, S, F> {
 	iter: I,
 	separator: S,
@@ -16,6 +20,7 @@ where
 	pub fn new<J>(iter: J, separator: S) -> Self
 	where
 		J: IntoIterator<IntoIter = I>,
+		I: Iterator<Item = T>,
 	{
 		fn write_identity<T>(w: &mut fmt::Formatter, x: T) -> fmt::Result
 		where
@@ -45,7 +50,6 @@ impl<I, T, S, F> StringIntersperser<I, T, S, F> {
 
 impl<I, T, S, F> fmt::Display for StringIntersperser<I, T, S, F>
 where
-	T: fmt::Display,
 	S: fmt::Display,
 	I: Iterator<Item = T> + Clone,
 	F: Fn(&mut fmt::Formatter, T) -> fmt::Result,
@@ -67,43 +71,5 @@ where
 			write_fn(f, x)?;
 		}
 		Ok(())
-	}
-}
-
-#[cfg(test)]
-mod test {
-	use super::*;
-
-	#[test]
-	fn test() {
-		fn test_case<T>(expected: &str, v: Vec<T>, separator: &str)
-		where
-			T: fmt::Display + Clone,
-		{
-			assert_eq!(
-				format!(
-					"{}",
-					StringIntersperser::new_with_fn(v, |f, x| write!(f, "{x}"), separator)
-				),
-				expected
-			);
-		}
-
-		test_case("", Vec::<i32>::new(), "");
-		test_case("", Vec::<i32>::new(), ", ");
-
-		test_case("", vec![""], "");
-		test_case("a", vec!["a"], "");
-		test_case("a", vec!["a"], ", ");
-		test_case("123", vec![123], "");
-		test_case("123", vec![123], ", ");
-
-		test_case(", ", vec!["", ""], ", ");
-		test_case(", a", vec!["", "a"], ", ");
-		test_case("a, ", vec!["a", ""], ", ");
-		test_case("a, b", vec!["a", "b"], ", ");
-
-		test_case(", , ", vec!["", "", ""], ", ");
-		test_case("a, b, c", vec!["a", "b", "c"], ", ");
 	}
 }
