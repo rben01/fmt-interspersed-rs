@@ -1,6 +1,6 @@
 # fmt-interspersed
 
-This crate provides analogs of the `stf::fmt` macros such as
+This crate provides analogs of the [`std::fmt`](https://doc.rust-lang.org/std/fmt/index.html) macros such as
 [`format!`](https://doc.rust-lang.org/std/macro.format.html) and
 [`write!`](https://doc.rust-lang.org/std/macro.write.html) to make it easier to
 “stringify” the contents of an iterator interspersed with a separator, without
@@ -46,7 +46,13 @@ assert_eq!("01-04-09-16-25", s);
 
 The full list of macros is:
 
-TBD
+- [`eprint_interspersed!`](https://docs.rs/fmt-interspersed/latest/fmt_interspersed/macro.eprint_interspersed.html)
+- [`eprintln_interspersed!`](https://docs.rs/fmt-interspersed/latest/fmt_interspersed/macro.eprintln_interspersed.html)
+- [`format_interspersed!`](https://docs.rs/fmt-interspersed/latest/fmt_interspersed/macro.format_interspersed.html)
+- [`print_interspersed!`](https://docs.rs/fmt-interspersed/latest/fmt_interspersed/macro.print_interspersed.html)
+- [`println_interspersed!`](https://docs.rs/fmt-interspersed/latest/fmt_interspersed/macro.println_interspersed.html)
+- [`write_interspersed!`](https://docs.rs/fmt-interspersed/latest/fmt_interspersed/macro.write_interspersed.html)
+- [`writeln_interspersed!`](https://docs.rs/fmt-interspersed/latest/fmt_interspersed/macro.writeln_interspersed.html)
 
 ## Pitfalls
 
