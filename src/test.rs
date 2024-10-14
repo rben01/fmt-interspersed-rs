@@ -1,4 +1,3 @@
-
 #[cfg(feature = "alloc")]
 extern crate alloc;
 
@@ -86,11 +85,11 @@ fn test_format_strings() {
 // TODO: test `write` without relying on allocation
 #[cfg(feature = "alloc")]
 #[test]
-fn test_write() {
+fn test_write() -> core::fmt::Result {
 	use core::fmt::Write;
 
 	let mut buf = std::string::String::new();
-	write_interspersed!(&mut buf, 1..=5, 0).unwrap();
+	write_interspersed!(&mut buf, 1..=5, 0);
 	assert_eq!(r#"102030405"#, buf);
 
 	let mut buf = std::string::String::new();
@@ -101,12 +100,13 @@ fn test_write() {
 		(x, y) => "(x: {:?}, y: {})",
 		x,
 		y,
-	)
-	.unwrap();
+	);
 	assert_eq!(
 		"(x: \"a\", y: 1); (x: \"b\", y: 2); (x: \"c\", y: 3)\n",
 		buf
 	);
+
+	Ok(())
 }
 
 // just testing that these compile, are resolved successfully

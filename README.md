@@ -1,78 +1,68 @@
 # fmt-interspersed
 
-This crate does one thing: given an `IntoIterator` and a separator `sep` to intersperse
-it with, write the items, interspersed with `sep`’s `Display` implementation, to a
-formatter. This happens without allocating any intermediate strings. The items yielded
-by the iterator do not need to be the same type as the separator.
+This crate provides analogs of the `stf::fmt` macros such as
+[`format!`](https://doc.rust-lang.org/std/macro.format.html) and
+[`write!`](https://doc.rust-lang.org/std/macro.write.html) to make it easier to
+“stringify” the contents of an iterator interspersed with a separator, without
+intermediate allocations. The items yielded by the iterator do not need to be the same
+type as the separator.
+
 
 ```rust
-use fmt_interspersed::FmtInterspersed;
+use fmt_interspersed::prelude::*;
 
 let s = "abc";
-let fmt_sep = FmtInterspersed::new(s.chars(), 0);
-assert_eq!("a0b0c", format!("{fmt_sep}"));
+assert_eq!("a0b0c", format_interspersed!(s.chars(), 0));
 ```
 
-In the above, `s.chars()::Item` implements `std::fmt::Display`. But you can specify a
-custom function to write the items with, which is useful when the iterator’s items
-aren't `Display` or need customization.
+In the above, `s.chars()::Item` implements
+[`std::fmt::Display`](https://doc.rust-lang.org/std/fmt/trait.Display.html). But you can
+specify a custom format to use to display th items, which is useful when the iterator’s
+items aren't `Display` or need customization. (The separator is always stringified using
+its `Display` implementation, and must implement `Display`.)
 
 ```rust
-let pairs = vec![("a", 1), ("b", 2), ("c", 3)];
-let fmt_sep =
-   FmtInterspersed::new_with_fn(&pairs, |f, &(x, y)| write!(f, "(x: {x:?}, y: {y})"), '; ');
+let pairs = vec![("a", 1), ("b", 2)];
 assert_eq!(
-   r#"(x: "a", y: 1); (x: "b", y: 2); (x: "c", y: 3)"#,
-   format!("{fmt_sep}")
+    r#"(x: "a", y: 1); (x: "b", y: 2)"#,
+    format_interspersed!(pairs, "; ", (x, y) => "(x: {x:?}, y: {y})")
 );
 ```
 
-This works with all of the `format_args!`-related macros, so you can e.g. write to a
-`String` buffer without allocating any intermediate strings:
+This works with all of the `format_args!`-related macros (except for `format_args!`
+itself), so you can, for example, write to a file without allocating any
+intermediate strings:
 
 ```rust
-// necessary to write to a `&mut String`
-use std::fmt::Write;
+// as with `write!`, the necessary trait for writing, either 
+// io::Write or fmt::Write, must be in scope
+use std::{fs, io::Write};
 
-let v = 1_i32..=5;
-let fmt_sep = FmtInterspersed::new_with_fn(v, |f, n| write!(f, "{:02}", n.pow(2)), '-');
-
-let mut s = String::new();
-write!(&mut s, "{fmt_sep}").unwrap();
-
+let mut f = fs::File::create("file.txt")?;
+write_interspersed!(f, 1_i32..=5, '-', n => "{:02}", n.pow(2));
+let s = fs::read_to_string("file.txt")?;
 assert_eq!("01-04-09-16-25", s);
 ```
 
-Since implementing `Display` gets you `ToString` for free, we can rewrite the above
-more simply as
+The full list of macros is:
 
-```rust
-let v = 1_i32..=5;
-let fmt_sep = FmtInterspersed::new_with_fn(v, |f, n| write!(f, "{:02}", n.pow(2)), '-');
-
-assert_eq!("01-04-09-16-25", fmt_sep.to_string());
-```
-
-An empty iterator produces no output, and an iterator with one item produces the item
-without the separator.
+TBD
 
 ## Pitfalls
 
-1. The `IntoIterator` passed to `FmtInterspersed` must be such that its `IntoIter:
-   Clone`, where `IntoIter` is the type returned by calling `.into_iter()` on it. (This
-   is due to the way the `Display` trait works; it takes `&self` by immutable
-   reference.) If you find that a collection’s `IntoIter` is not `Clone`, try passing a
-   borrowed form of the collection instead. For instance, `<HashMap
-   asIntoIterator>::IntoIter` is not `Clone`, but `<&HashMap as IntoIterator>::IntoIter`
-   is `Clone`. Similarly, `hash_map.into_keys()` returns a non-`Clone` iterator, whereas
-   `hash_map.keys()` is `Clone`. The iterators produced by `Vec<T>::into_iter`,
-   `<&Vec<T>>::into_iter`, `<&[T]>::into_iter`, and `<[T; N]>::into_iter` are all
-   `Clone`, although it's probably not a good idea to pass a `Vec<T>`, whose `IntoIter`
-   will clone the underlying `Vec<T>` when cloned, if a `&Vec<T>` or `&[T]` will do
-   instead.
+1. Unlike `write!`, you cannot `.unwrap()` the result of `write_interspersed!`. This is
+   because `write_interspersed!` expands to multiple calls to `write!`, so there is no
+   single expression to unwrap. If you want to unwrap the result of
+   `write_interspersed!`, you can wrap it in a closure as follows:
 
-1. The type of the second argument in the function passed to `new_with_fn` must
-   _exactly_ match the type yielded by the iterator. In the second example above, the
-   signature _must_ be `|f, &(x, y)|`, and not, say, `|f, (x, y)|` (which you might
-   normally write in non-generic code, expecting the references to magically be moved
-   inside the tuple), because the iterator yields references to tuples.
+   ```rust
+   // result type here must suit the destination;
+   // io::Result for a file, fmt::Result for a string
+   (|| -> std::io::Result {
+      write_interspersed!(args...);
+      Ok(())
+   }).unwrap()
+   ```
+
+   When [`try_blocks`](https://github.com/rust-lang/rust/issues/31436) are stabilized,
+   that will become the preferred syntax for this.

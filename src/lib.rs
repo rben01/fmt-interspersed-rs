@@ -9,17 +9,14 @@ extern crate std;
 #[macro_export]
 macro_rules! write_interspersed {
 	($writer:expr, $iter:expr, $separator:expr, $arg:pat_param => $($fmt:tt)*) => {{
-		(|| -> core::fmt::Result {
-			let mut iter = $iter.into_iter();
-			if let ::core::option::Option::Some($arg) = iter.next() {
+		let mut iter = $iter.into_iter();
+		if let ::core::option::Option::Some($arg) = iter.next() {
+			write!($writer, $($fmt)*)?;
+			for $arg in iter {
+				write!($writer, "{}", $separator)?;
 				write!($writer, $($fmt)*)?;
-				for $arg in iter {
-					write!($writer, "{}", $separator)?;
-					write!($writer, $($fmt)*)?;
-				}
-			};
-			::core::fmt::Result::Ok(())
-		})()
+			}
+		}
 	}};
 	($writer:expr, $iter:expr, $separator:expr $(,)?) => {
 		$crate::write_interspersed!($writer, $iter, $separator, x => "{}", x)
@@ -31,7 +28,11 @@ macro_rules! write_interspersed {
 macro_rules! format_interspersed {
 	($($args:tt)*) => {{
 		let mut __buf = ::alloc::string::String::new();
-		$crate::write_interspersed!(&mut __buf, $($args)*).unwrap();
+		(|| -> ::core::fmt::Result {
+			$crate::write_interspersed!(&mut __buf, $($args)*);
+			::core::result::Result::Ok(())
+		})().unwrap();
+
 		__buf
 	}};
 }
@@ -39,11 +40,8 @@ macro_rules! format_interspersed {
 #[macro_export]
 macro_rules! writeln_interspersed {
 	($writer:expr, $($args:tt)*) => {{
-		(|| -> ::core::fmt::Result {
-			$crate::write_interspersed!($writer, $($args)*)?;
-			writeln!($writer)?;
-			::core::fmt::Result::Ok(())
-		})()
+		$crate::write_interspersed!($writer, $($args)*);
+		writeln!($writer)?;
 	}};
 }
 
