@@ -7,7 +7,6 @@ This crate provides analogs of the [`std::fmt`](https://doc.rust-lang.org/std/fm
 intermediate allocations. The items yielded by the iterator do not need to be the same
 type as the separator.
 
-
 ```rust
 use fmt_interspersed::prelude::*;
 
