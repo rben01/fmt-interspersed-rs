@@ -1,6 +1,15 @@
+
+#[cfg(feature = "alloc")]
+extern crate alloc;
+
+#[cfg(feature = "std")]
 extern crate std;
-use crate::{format_interspersed, print_interspersed};
-use std::{fmt, prelude::rust_2021::*, vec};
+
+use crate::prelude::*;
+use core::fmt;
+
+#[cfg(feature = "alloc")]
+use alloc::{vec, vec::Vec};
 
 #[test]
 fn test_simple() {
