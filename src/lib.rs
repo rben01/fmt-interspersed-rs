@@ -93,9 +93,14 @@ macro_rules! eprintln_interspersed {
 }
 
 pub mod prelude {
+	pub use crate::{write_interspersed, writeln_interspersed};
+
+	#[cfg(feature = "alloc")]
+	pub use crate::format_interspersed;
+
+	#[cfg(feature = "std")]
 	pub use crate::{
-		eprint_interspersed, eprintln_interspersed, format_interspersed, print_interspersed,
-		println_interspersed, write_interspersed, writeln_interspersed,
+		eprint_interspersed, eprintln_interspersed, print_interspersed, println_interspersed,
 	};
 }
 
