@@ -29,8 +29,8 @@ assert_eq!(
 );
 ```
 
-This works with all of the `format_args!`-related macros (except for `format_args!`
-itself), so you can, for example, write to a file without allocating any
+There are equivalents of all of the `format_args!`-related macros (except for
+`format_args!` itself), so you can, for example, write to a file without allocating any
 intermediate strings:
 
 ```rust
