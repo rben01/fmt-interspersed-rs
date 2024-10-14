@@ -59,10 +59,10 @@ The macros enabled with the various features are as follows:
   - [`format_interspersed!`](https://docs.rs/fmt-interspersed/latest/fmt_interspersed/macro.format_interspersed.html)
 
 - `std`
-  - [`eprint_interspersed!`](https://docs.rs/fmt-interspersed/latest/fmt_interspersed/macro.eprint_interspersed.html)
-  - [`eprintln_interspersed!`](https://docs.rs/fmt-interspersed/latest/fmt_interspersed/macro.eprintln_interspersed.html)
   - [`print_interspersed!`](https://docs.rs/fmt-interspersed/latest/fmt_interspersed/macro.print_interspersed.html)
   - [`println_interspersed!`](https://docs.rs/fmt-interspersed/latest/fmt_interspersed/macro.println_interspersed.html)
+  - [`eprint_interspersed!`](https://docs.rs/fmt-interspersed/latest/fmt_interspersed/macro.eprint_interspersed.html)
+  - [`eprintln_interspersed!`](https://docs.rs/fmt-interspersed/latest/fmt_interspersed/macro.eprintln_interspersed.html)
 
 ## Pitfalls
 
