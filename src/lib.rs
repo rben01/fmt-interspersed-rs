@@ -9,6 +9,8 @@ extern crate std;
 #[macro_export]
 macro_rules! write_interspersed {
 	($writer:expr, $iter:expr, $separator:expr, $arg:pat_param => $($fmt:tt)*) => {{
+		use core::fmt::Write;
+
 		let mut iter = $iter.into_iter();
 		if let ::core::option::Option::Some($arg) = iter.next() {
 			write!($writer, $($fmt)*)?;

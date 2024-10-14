@@ -7,7 +7,7 @@ extern crate std;
 #[cfg(feature = "alloc")]
 #[test]
 fn test_simple() {
-	use core::fmt::{self, Write};
+	use core::fmt;
 
 	fn test_case<T, S>(expected: &str, v: &[T], separator: S)
 	where
@@ -42,8 +42,6 @@ fn test_simple() {
 #[cfg(feature = "alloc")]
 #[test]
 fn test_format_strings() {
-	use core::fmt::Write;
-
 	assert_eq!("", format_interspersed!(&[0_i32; 0], "", _ => "nonempty"));
 	assert_eq!(
 		"",
