@@ -63,10 +63,13 @@ jobs:
 
   build:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        features: ["--no-default-features", "--features alloc", "--features std"]
 
     steps:
       - uses: actions/checkout@v4
       - name: Build
-        run: cargo build --verbose
+        run: cargo build --verbose ${{ matrix.features }}
       - name: Run tests
-        run: cargo test --verbose
+        run: cargo test --verbose ${{ matrix.features }}
