@@ -47,7 +47,8 @@ macro_rules! writeln_interspersed {
 
 #[cfg(feature = "std")]
 #[macro_export]
-macro_rules! print_interspersed {
+#[doc(hidden)]
+macro_rules! __print_interspersed_impl {
 	(print = $print:path; $iter:expr, $separator:expr, $arg:pat_param => $($fmt:tt)*) => {
 		let mut iter = $iter.into_iter();
 		if let ::core::option::Option::Some($arg) = iter.next() {
@@ -59,10 +60,15 @@ macro_rules! print_interspersed {
 		}
 	};
 	(print = $print:path; $iter:expr, $separator:expr $(,)?) => {
-		$crate::print_interspersed!(print = $print; $iter, $separator, x => "{}", x)
+		$crate::__print_interspersed_impl!(print = $print; $iter, $separator, x => "{}", x)
 	};
+}
+
+#[cfg(feature = "std")]
+#[macro_export]
+macro_rules! print_interspersed {
 	($iter:expr, $separator:expr $(, $($args:tt)*)?) => {{
-		$crate::print_interspersed!(print = ::std::print; $iter, $separator $(, $($args)*)?);
+		$crate::__print_interspersed_impl!(print = ::std::print; $iter, $separator $(, $($args)*)?);
 	}};
 }
 
@@ -70,7 +76,7 @@ macro_rules! print_interspersed {
 #[macro_export]
 macro_rules! println_interspersed {
 	($iter:expr, $separator:expr $(, $($args:tt)*)?) => {{
-		$crate::print_interspersed!(print = ::std::print; $iter, $separator $(, $($args)*)?);
+		$crate::__print_interspersed_impl!(print = ::std::print; $iter, $separator $(, $($args)*)?);
 		::std::println!();
 	}};
 }
@@ -79,7 +85,7 @@ macro_rules! println_interspersed {
 #[macro_export]
 macro_rules! eprint_interspersed {
 	($iter:expr, $separator:expr $(, $($args:tt)*)?) => {{
-		$crate::print_interspersed!(print = ::std::eprint; $iter, $separator $(, $($args)*)?);
+		$crate::__print_interspersed_impl!(print = ::std::eprint; $iter, $separator $(, $($args)*)?);
 	}};
 }
 
@@ -87,7 +93,7 @@ macro_rules! eprint_interspersed {
 #[macro_export]
 macro_rules! eprintln_interspersed {
 	($iter:expr, $separator:expr $(, $($args:tt)*)?) => {{
-		$crate::print_interspersed!(print = ::std::eprint; $iter, $separator $(, $($args)*)?);
+		$crate::__print_interspersed_impl!(print = ::std::eprint; $iter, $separator $(, $($args)*)?);
 		::std::eprintln!();
 	}};
 }
