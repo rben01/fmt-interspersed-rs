@@ -85,7 +85,7 @@ fn test_write() {
 	assert_eq!(r#"102030405"#, buf);
 
 	let mut buf = std::string::String::new();
-	write_interspersed!(
+	writeln_interspersed!(
 		&mut buf,
 		vec![("a", 1), ("b", 2), ("c", 3)],
 		"; ",
@@ -94,7 +94,10 @@ fn test_write() {
 		y,
 	)
 	.unwrap();
-	assert_eq!(r#"(x: "a", y: 1); (x: "b", y: 2); (x: "c", y: 3)"#, buf);
+	assert_eq!(
+		"(x: \"a\", y: 1); (x: \"b\", y: 2); (x: \"c\", y: 3)\n",
+		buf
+	);
 }
 
 // just testing that these compile, are resolved successfully

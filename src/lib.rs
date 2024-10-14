@@ -7,7 +7,7 @@ extern crate alloc;
 extern crate std;
 
 #[macro_export]
-macro_rules! macro_interspersed {
+macro_rules! __macro_interspersed {
 	(dst = $dst:expr; $iter:expr, $separator:expr, $arg:pat_param => $($fmt:tt)*) => {
 		(|| -> core::fmt::Result {
 			let mut iter = $iter.into_iter();
@@ -22,7 +22,7 @@ macro_rules! macro_interspersed {
 		})()
 	};
 	(dst = $dst:expr; $iter:expr, $separator:expr $(,)?) => {
-		$crate::macro_interspersed!(dst = $dst; $iter, $separator, x => "{}", x)
+		$crate::__macro_interspersed!(dst = $dst; $iter, $separator, x => "{}", x)
 	};
 	(print = $print:path; $iter:expr, $separator:expr, $arg:pat_param => $($fmt:tt)*) => {
 		let mut iter = $iter.into_iter();
@@ -35,7 +35,7 @@ macro_rules! macro_interspersed {
 		}
 	};
 	(print = $print:path; $iter:expr, $separator:expr $(,)?) => {
-		$crate::macro_interspersed!(print = $print; $iter, $separator, x => "{}", x)
+		$crate::__macro_interspersed!(print = $print; $iter, $separator, x => "{}", x)
 	};
 }
 
@@ -44,7 +44,7 @@ macro_rules! macro_interspersed {
 macro_rules! format_interspersed {
 	($iter:expr, $separator:expr $(, $($args:tt)*)?) => {{
 		let mut buf = ::alloc::string::String::new();
-		$crate::macro_interspersed!(dst = &mut buf; $iter, $separator $(, $($args)*)?).unwrap();
+		$crate::__macro_interspersed!(dst = &mut buf; $iter, $separator $(, $($args)*)?).unwrap();
 		buf
 	}};
 }
@@ -52,16 +52,18 @@ macro_rules! format_interspersed {
 #[macro_export]
 macro_rules! write_interspersed {
 	($writer:expr, $iter:expr, $separator:expr $(, $($args:tt)*)?) => {{
-		$crate::macro_interspersed!(dst = $writer; $iter, $separator $(, $($args)*)?)
+		$crate::__macro_interspersed!(dst = $writer; $iter, $separator $(, $($args)*)?)
 	}};
 }
 
 #[macro_export]
 macro_rules! writeln_interspersed {
 	($writer:expr, $iter:expr, $separator:expr $(, $($args:tt)*)?) => {{
-		$crate::write_interspersed!($writer, $iter, $separator $(, $($args)*)?);
-		writeln!($writer)?;
-		::core::fmt::Result::Ok(())
+		(|| -> ::core::fmt::Result {
+			$crate::write_interspersed!($writer, $iter, $separator $(, $($args)*)?)?;
+			writeln!($writer)?;
+			::core::fmt::Result::Ok(())
+		})()
 	}};
 }
 
@@ -69,7 +71,7 @@ macro_rules! writeln_interspersed {
 #[macro_export]
 macro_rules! print_interspersed {
 	($iter:expr, $separator:expr $(, $($args:tt)*)?) => {{
-		$crate::macro_interspersed!(print = ::std::print; $iter, $separator $(, $($args)*)?);
+		$crate::__macro_interspersed!(print = ::std::print; $iter, $separator $(, $($args)*)?);
 	}};
 }
 
@@ -77,7 +79,7 @@ macro_rules! print_interspersed {
 #[macro_export]
 macro_rules! println_interspersed {
 	($iter:expr, $separator:expr $(, $($args:tt)*)?) => {{
-		$crate::macro_interspersed!(print = ::std::print; $iter, $separator $(, $($args)*)?);
+		$crate::__macro_interspersed!(print = ::std::print; $iter, $separator $(, $($args)*)?);
 		::std::println!();
 	}};
 }
@@ -86,7 +88,7 @@ macro_rules! println_interspersed {
 #[macro_export]
 macro_rules! eprint_interspersed {
 	($iter:expr, $separator:expr $(, $($args:tt)*)?) => {{
-		$crate::macro_interspersed!(print = ::std::eprint; $iter, $separator $(, $($args)*)?);
+		$crate::__macro_interspersed!(print = ::std::eprint; $iter, $separator $(, $($args)*)?);
 	}};
 }
 
@@ -94,7 +96,7 @@ macro_rules! eprint_interspersed {
 #[macro_export]
 macro_rules! eprintln_interspersed {
 	($iter:expr, $separator:expr $(, $($args:tt)*)?) => {{
-		$crate::macro_interspersed!(print = ::std::eprint; $iter, $separator $(, $($args)*)?);
+		$crate::__macro_interspersed!(print = ::std::eprint; $iter, $separator $(, $($args)*)?);
 		::std::eprintln!();
 	}};
 }
