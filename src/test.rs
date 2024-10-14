@@ -73,17 +73,18 @@ fn test_format_strings() {
 	);
 }
 
-// TODO: test `write` without relying on allocation
+// TODO: test `write` without relying on allocation; harder than it looks because `&mut
+// [u8]` is only `std::io::Write`, not `core::fmt::Write`
 #[cfg(feature = "alloc")]
 #[test]
 fn test_write() -> core::fmt::Result {
 	use core::fmt::Write;
 
-	let mut buf = std::string::String::new();
+	let mut buf = alloc::string::String::new();
 	write_interspersed!(&mut buf, 1..=5, 0);
 	assert_eq!(r#"102030405"#, buf);
 
-	let mut buf = std::string::String::new();
+	let mut buf = alloc::string::String::new();
 	writeln_interspersed!(
 		&mut buf,
 		[("a", 1), ("b", 2), ("c", 3)],
