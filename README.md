@@ -44,15 +44,25 @@ let s = fs::read_to_string("file.txt")?;
 assert_eq!("01-04-09-16-25", s);
 ```
 
-The full list of macros is:
+## Features and `no_std`
 
-- [`eprint_interspersed!`](https://docs.rs/fmt-interspersed/latest/fmt_interspersed/macro.eprint_interspersed.html)
-- [`eprintln_interspersed!`](https://docs.rs/fmt-interspersed/latest/fmt_interspersed/macro.eprintln_interspersed.html)
-- [`format_interspersed!`](https://docs.rs/fmt-interspersed/latest/fmt_interspersed/macro.format_interspersed.html)
-- [`print_interspersed!`](https://docs.rs/fmt-interspersed/latest/fmt_interspersed/macro.print_interspersed.html)
-- [`println_interspersed!`](https://docs.rs/fmt-interspersed/latest/fmt_interspersed/macro.println_interspersed.html)
-- [`write_interspersed!`](https://docs.rs/fmt-interspersed/latest/fmt_interspersed/macro.write_interspersed.html)
-- [`writeln_interspersed!`](https://docs.rs/fmt-interspersed/latest/fmt_interspersed/macro.writeln_interspersed.html)
+This crate has two features: `alloc` and `std`. `std` is enabled by default and implies
+`alloc`. With `alloc` and `std` disabled, this crate is `#![no_std]`-compatible.
+
+The macros enabled with the various features are as follows:
+
+- No features
+  - [`write_interspersed!`](https://docs.rs/fmt-interspersed/latest/fmt_interspersed/macro.write_interspersed.html)
+  - [`writeln_interspersed!`](https://docs.rs/fmt-interspersed/latest/fmt_interspersed/macro.writeln_interspersed.html)
+
+- `alloc`
+  - [`format_interspersed!`](https://docs.rs/fmt-interspersed/latest/fmt_interspersed/macro.format_interspersed.html)
+
+- `std`
+  - [`eprint_interspersed!`](https://docs.rs/fmt-interspersed/latest/fmt_interspersed/macro.eprint_interspersed.html)
+  - [`eprintln_interspersed!`](https://docs.rs/fmt-interspersed/latest/fmt_interspersed/macro.eprintln_interspersed.html)
+  - [`print_interspersed!`](https://docs.rs/fmt-interspersed/latest/fmt_interspersed/macro.print_interspersed.html)
+  - [`println_interspersed!`](https://docs.rs/fmt-interspersed/latest/fmt_interspersed/macro.println_interspersed.html)
 
 ## Pitfalls
 
