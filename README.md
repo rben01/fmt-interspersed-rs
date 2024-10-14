@@ -17,7 +17,7 @@ assert_eq!("a0b0c", format_interspersed!(s.chars(), 0));
 
 In the above, `s.chars()::Item` implements
 [`std::fmt::Display`](https://doc.rust-lang.org/std/fmt/trait.Display.html). But you can
-specify a custom format to use to display th items, which is useful when the iterator’s
+specify a custom format to use to display the items, which is useful when the iterator’s
 items aren't `Display` or need customization. (The separator is always stringified using
 its `Display` implementation, and must implement `Display`.)
 
