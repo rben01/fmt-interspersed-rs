@@ -1,25 +1,18 @@
 extern crate std;
-use crate::FmtInterspersed;
-use std::{fmt, format, prelude::rust_2021::*, vec};
+use crate::{format_interspersed, print_interspersed};
+use std::{fmt, prelude::rust_2021::*, vec};
 
 #[test]
-fn test_identity() {
+fn test_simple() {
+	use core::fmt::Write;
+
 	fn test_case<T, S>(expected: &str, v: Vec<T>, separator: S)
 	where
 		T: fmt::Display,
 		S: fmt::Display,
 	{
-		assert_eq!(
-			format!("{}", FmtInterspersed::new(&v, &separator)),
-			expected
-		);
-		assert_eq!(
-			format!(
-				"{}",
-				FmtInterspersed::new_with_fn(&v, |f, x| write!(f, "{}", x), &separator)
-			),
-			expected
-		);
+		assert_eq!(expected, format_interspersed!(&v, &separator));
+		assert_eq!(expected, format_interspersed!(&v, &separator, x => "{}", x));
 	}
 
 	test_case("", Vec::<i32>::new(), "");
@@ -44,52 +37,137 @@ fn test_identity() {
 }
 
 #[test]
-fn test_functions() {
-	fn test_case<T, S>(
-		expected: &str,
-		v: Vec<T>,
-		f: impl Fn(&mut fmt::Formatter, &T) -> fmt::Result,
-		separator: S,
-	) where
-		S: fmt::Display,
-	{
-		assert_eq!(
-			format!("{}", FmtInterspersed::new_with_fn(&v, f, separator)),
-			expected
-		);
-	}
+fn test_format_strings() {
+	use core::fmt::Write;
 
-	test_case("", Vec::<i32>::new(), |f, _| write!(f, "nonempty"), "");
-	test_case(
+	assert_eq!(
 		"",
-		Vec::<i32>::new(),
-		|f, _| write!(f, "nonempty"),
-		"nonempty",
+		format_interspersed!(Vec::<i32>::new(), "", _ => "nonempty")
+	);
+	assert_eq!(
+		"",
+		format_interspersed!(Vec::<i32>::new(), "nonempty", _ => "nonempty")
 	);
 
-	test_case(
+	assert_eq!(
 		"149",
-		vec![1_i32, 2, 3],
-		|f, i| write!(f, "{}", i.pow(2)),
-		"",
+		format_interspersed!(vec![1_i32, 2, 3], "", i => "{}", i.pow(2))
 	);
-	test_case(
+	assert_eq!(
 		"1, 4, 9",
-		vec![1_i32, 2, 3],
-		|f, i| write!(f, "{}", i.pow(2)),
-		", ",
+		format_interspersed!(vec![1_i32, 2, 3], ", ", i => "{}", i.pow(2))
 	);
-	test_case(
+	assert_eq!(
 		"10409",
-		vec![1_i32, 2, 3],
-		|f, i| write!(f, "{}", i.pow(2)),
-		0,
+		format_interspersed!(vec![1_i32, 2, 3], 0, i => "{}", i.pow(2))
 	);
 
-	test_case(
+	assert_eq!(
 		r#"(x: "a", y: 1); (x: "b", y: 2); (x: "c", y: 3)"#,
+		format_interspersed!(
+			vec![("a", 1), ("b", 2), ("c", 3)],
+			"; ",
+			(x, y) => "(x: {:?}, y: {})",
+			x,
+			y
+		)
+	);
+}
+
+// TODO: test `write` without relying on allocation
+#[cfg(feature = "alloc")]
+#[test]
+fn test_write() {
+	use core::fmt::Write;
+
+	let mut buf = std::string::String::new();
+	write_interspersed!(&mut buf, 1..=5, 0).unwrap();
+	assert_eq!(r#"102030405"#, buf);
+
+	let mut buf = std::string::String::new();
+	write_interspersed!(
+		&mut buf,
 		vec![("a", 1), ("b", 2), ("c", 3)],
-		|f, (x, y)| write!(f, "(x: {:?}, y: {})", x, y),
 		"; ",
+		(x, y) => "(x: {:?}, y: {})",
+		x,
+		y,
+	)
+	.unwrap();
+	assert_eq!(r#"(x: "a", y: 1); (x: "b", y: 2); (x: "c", y: 3)"#, buf);
+}
+
+// just testing that these compile, are resolved successfully
+#[cfg(feature = "std")]
+#[test]
+fn test_print_compiles() {
+	print_interspersed!(1..=3, "; ");
+	println_interspersed!(1..=3, "; ");
+	eprint_interspersed!(1..=3, "; ");
+	eprintln_interspersed!(1..=3, "; ");
+
+	// trailing commas
+	print_interspersed!(1..=3, "; ",);
+	println_interspersed!(1..=3, "; ",);
+	eprint_interspersed!(1..=3, "; ",);
+	eprintln_interspersed!(1..=3, "; ",);
+
+	print_interspersed!(
+		vec![("a", 1), ("b", 2), ("c", 3)],
+		"; ",
+		(x, y) => "(x: {:?}, y: {})",
+		x,
+		y
+	);
+	println_interspersed!(
+		vec![("a", 1), ("b", 2), ("c", 3)],
+		"; ",
+		(x, y) => "(x: {:?}, y: {})",
+		x,
+		y
+	);
+	eprint_interspersed!(
+		vec![("a", 1), ("b", 2), ("c", 3)],
+		"; ",
+		(x, y) => "(x: {:?}, y: {})",
+		x,
+		y
+	);
+	eprintln_interspersed!(
+		vec![("a", 1), ("b", 2), ("c", 3)],
+		"; ",
+		(x, y) => "(x: {:?}, y: {})",
+		x,
+		y
+	);
+
+	// trailing commas
+	print_interspersed!(
+		vec![("a", 1), ("b", 2), ("c", 3)],
+		"; ",
+		(x, y) => "(x: {:?}, y: {})",
+		x,
+		y,
+	);
+	println_interspersed!(
+		vec![("a", 1), ("b", 2), ("c", 3)],
+		"; ",
+		(x, y) => "(x: {:?}, y: {})",
+		x,
+		y,
+	);
+	eprint_interspersed!(
+		vec![("a", 1), ("b", 2), ("c", 3)],
+		"; ",
+		(x, y) => "(x: {:?}, y: {})",
+		x,
+		y,
+	);
+	eprintln_interspersed!(
+		vec![("a", 1), ("b", 2), ("c", 3)],
+		"; ",
+		(x, y) => "(x: {:?}, y: {})",
+		x,
+		y,
 	);
 }
