@@ -40,16 +40,17 @@ macro_rules! __write_interspersed_impl {
 	};
 }
 
-/// Like `write!`, but interspersed
+/// An interspersing version of [`write!`]
 ///
-/// Write’s an iterable’s items, separated by a separator, to a destination. Like
-/// `write!`, `io::Write` or `fmt::Write` must be in scope, depending on the
-/// destination.
+/// Writes an iterable’s items, separated by a separator, to a destination. Like
+/// `write!`, this macro returns a [`Result`] and requires [`std::io::Write`] or
+/// [`std::fmt::Write`] to be in scope, depending on the destination.
 ///
 /// Like all macros in this crate, `write_interspersed!` has two forms:
 /// `write_interspersed!(w, iterable, sep)` and `write_interspersed!(w, iterable, sep,
-/// pat => fmt_args)`. Both forms require that `sep` implements `Display`. The first
-/// also requires that the iterable’s items implement `Display`.
+/// pat => fmt_args)`. Both forms require that `sep` implements
+/// [`Display`](`std::fmt::Display`). The first also requires that the iterable’s items
+/// implement `Display`.
 ///
 /// ```
 /// use fmt_interspersed::write_interspersed;
@@ -78,16 +79,17 @@ macro_rules! write_interspersed {
 
 }
 
-/// Like `writeln!`, but interspersed
+/// An interspersing version of [`writeln!`]
 ///
-/// Write’s an iterable’s items, separated by a separator, to a destination, followed by
-/// a newline. Like `writeln!`, `io::Write` or `fmt::Write` must be in scope, depending
-/// on the destination.
+/// Writes an iterable’s items, separated by a separator, to a destination. Like
+/// `writeln!`, this macro returns a [`Result`] and requires [`std::io::Write`] or
+/// [`std::fmt::Write`] to be in scope, depending on the destination.
 ///
 /// Like all macros in this crate, `writeln_interspersed!` has two forms:
-/// `writeln_interspersed!(w, iterable, sep)` and `write_interspersed!(w, iterable, sep,
-/// pat => fmt_args)`. Both forms require that `sep` implements `Display`. The first
-/// also requires that the iterable’s items implement `Display`.
+/// `writeln_interspersed!(w, iterable, sep)` and `writeln_interspersed!(w, iterable,
+/// sep, pat => fmt_args)`. Both forms require that `sep` implements
+/// [`Display`](`std::fmt::Display`). The first also requires that the iterable’s items
+/// implement `Display`.
 ///
 /// ```
 /// use fmt_interspersed::writeln_interspersed;
@@ -139,14 +141,15 @@ macro_rules! __format_interspersed_impl {
 	}};
 }
 
-/// Like `format!`, but interspersed
+/// An interspersing version of [`format!`](std::format)
 ///
 /// Make a string from an iterable’s items separated by a separator.
 ///
-/// Like all macros in this crate, `format!` has two forms: `format!(w, iterable, sep)`
-/// and `format!(w, iterable, sep, pat => fmt_args)`. Both forms require that `sep`
-/// implements `Display`. The first also requires that the iterable’s items implement
-/// `Display`.
+/// Like all macros in this crate, `format_interspersed!` has two forms:
+/// `format_interspersed!(w, iterable, sep)` and `format_interspersed!(w, iterable, sep,
+/// pat => fmt_args)`. Both forms require that `sep` implements [`Display`](`std::fmt::Display`). The first
+/// also requires that the iterable’s items implement `Display`.
+///
 /// ```
 /// # extern crate alloc;
 /// use fmt_interspersed::format_interspersed;
@@ -186,15 +189,16 @@ macro_rules! __print_interspersed_impl {
 	};
 }
 
-/// Like `print!`, but interspersed
+/// An interspersing version of [`print!`](std::print)
 ///
 /// Prints the string made from an iterable’s items separated by a separator. Does not
 /// allocate.
 ///
 /// Like all macros in this crate, `print!` has two forms: `print!(w, iterable, sep)`
 /// and `print!(w, iterable, sep, pat => fmt_args)`. Both forms require that `sep`
-/// implements `Display`. The first also requires that the iterable’s items implement
-/// `Display`.
+/// implements [`Display`](`std::fmt::Display`). The first also requires that the
+/// iterable’s items implement `Display`.
+///
 /// ```
 /// use fmt_interspersed::print_interspersed;
 ///
@@ -212,15 +216,16 @@ macro_rules! print_interspersed {
 	}};
 }
 
-/// Like `println!`, but interspersed
+/// An interspersing version of [`println!`](std::println)
 ///
 /// Prints the string made from an iterable’s items separated by a separator, followed
 /// by a newline. Does not allocate.
 ///
 /// Like all macros in this crate, `println!` has two forms: `println!(w, iterable,
 /// sep)` and `println!(w, iterable, sep, pat => fmt_args)`. Both forms require that
-/// `sep` implements `Display`. The first also requires that the iterable’s items
-/// implement `Display`.
+/// `sep` implements [`Display`](`std::fmt::Display`). The first also requires that the
+/// iterable’s items implement `Display`.
+///
 /// ```
 /// use fmt_interspersed::println_interspersed;
 ///
@@ -241,15 +246,16 @@ macro_rules! println_interspersed {
 	}};
 }
 
-/// Like `eprint!`, but interspersed
+/// An interspersing version of [`eprint!`](std::eprint)
 ///
 /// Prints the string made from an iterable’s items separated by a separator to standard
 /// error. Does not allocate.
 ///
 /// Like all macros in this crate, `eprint!` has two forms: `eprint!(w, iterable, sep)`
 /// and `eprint!(w, iterable, sep, pat => fmt_args)`. Both forms require that `sep`
-/// implements `Display`. The first also requires that the iterable’s items implement
-/// `Display`.
+/// implements [`Display`](`std::fmt::Display`). The first also requires that the
+/// iterable’s items implement `Display`.
+///
 /// ```
 /// use fmt_interspersed::eprint_interspersed;
 ///
@@ -267,15 +273,16 @@ macro_rules! eprint_interspersed {
 	}};
 }
 
-/// Like `eprintln!`, but interspersed
+/// An interspersing version of [`eprintln!`](std::eprintln)
 ///
 /// Prints the string made from an iterable’s items separated by a separator, followed
 /// by a newline, to standard error. Does not allocate.
 ///
 /// Like all macros in this crate, `eprintln!` has two forms: `eprintln!(w, iterable,
 /// sep)` and `eprintln!(w, iterable, sep, pat => fmt_args)`. Both forms require that
-/// `sep` implements `Display`. The first also requires that the iterable’s items
-/// implement `Display`.
+/// `sep` implements [`Display`](`std::fmt::Display`). The first also requires that the
+/// iterable’s items implement `Display`.
+///
 /// ```
 /// use fmt_interspersed::eprintln_interspersed;
 ///

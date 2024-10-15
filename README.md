@@ -62,8 +62,9 @@ assert_eq!("01-04-09-16-25", buf);
 use std::io::{Cursor, Write};
 
 let mut buf = Cursor::new(Vec::<u8>::new());
-write_interspersed!(&mut buf, "abc".bytes(), ',', b => "{b}")?;
-assert_eq!("97,98,99", String::from_utf8(buf.into_inner()).unwrap());
+writeln_interspersed!(&mut buf, "abc".bytes(), ',', b => "{}", b - b'a')?;
+write_interspersed!(&mut buf, "abc".bytes(), ',', b => "{}", (b - b'a' + b'A') as char)?;
+assert_eq!("0,1,2\nA,B,C", String::from_utf8(buf.into_inner()).unwrap());
 ```
 
 <!-- begin -->
