@@ -77,25 +77,72 @@ fn test_format_strings() {
 // [u8]` is only `std::io::Write`, not `core::fmt::Write`
 #[cfg(feature = "alloc")]
 #[test]
-fn test_write() -> core::fmt::Result {
+fn test_str_write() -> core::fmt::Result {
+	use alloc::string::ToString;
 	use core::fmt::Write;
 
-	let mut buf = alloc::string::String::new();
-	write_interspersed!(&mut buf, 1..=5, 0);
-	assert_eq!(r#"102030405"#, buf);
+	macro_rules! test_case {
+		($expected:expr, $($args:tt)*) => {{
+			let mut buf = alloc::string::String::new();
+			write_interspersed!(&mut buf, $($args)*)?;
+			assert_eq!($expected, buf);
 
-	let mut buf = alloc::string::String::new();
-	writeln_interspersed!(
-		&mut buf,
+			let mut buf = alloc::string::String::new();
+			writeln_interspersed!(&mut buf, $($args)*)?;
+			let mut expected = $expected.to_string();
+			expected.push('\n');
+			assert_eq!(expected, buf);
+		}};
+	}
+
+	test_case!("102030405", 1..=5, 0);
+	test_case!(
+		"(x: \"a\", y: 1); (x: \"b\", y: 2); (x: \"c\", y: 3)",
 		[("a", 1), ("b", 2), ("c", 3)],
 		"; ",
 		(x, y) => "(x: {:?}, y: {})",
 		x,
 		y,
 	);
-	assert_eq!(
-		"(x: \"a\", y: 1); (x: \"b\", y: 2); (x: \"c\", y: 3)\n",
-		buf
+
+	Ok(())
+}
+
+#[cfg(feature = "std")]
+#[test]
+fn test_io_write() -> std::io::Result<()> {
+	use std::{
+		io::{Cursor, Write},
+		string::{String, ToString},
+		vec::Vec,
+	};
+
+	fn eq(expected: &str, actual: Cursor<Vec<u8>>) {
+		assert_eq!(expected, String::from_utf8(actual.into_inner()).unwrap())
+	}
+
+	macro_rules! test_case {
+		($expected:expr, $($args:tt)*) => {{
+			let mut buf = Cursor::new(Vec::new());
+			write_interspersed!(&mut buf, $($args)*)?;
+			eq($expected, buf);
+
+			let mut buf = Cursor::new(Vec::new());
+			writeln_interspersed!(&mut buf, $($args)*)?;
+			let mut expected = $expected.to_string();
+			expected.push('\n');
+			eq(&expected, buf);
+		}};
+	}
+
+	test_case!("102030405", 1..=5, 0);
+	test_case!(
+		"(x: \"a\", y: 1); (x: \"b\", y: 2); (x: \"c\", y: 3)",
+		[("a", 1), ("b", 2), ("c", 3)],
+		"; ",
+		(x, y) => "(x: {:?}, y: {})",
+		x,
+		y,
 	);
 
 	Ok(())
