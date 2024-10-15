@@ -72,4 +72,14 @@ jobs:
       - name: Build
         run: cargo build --verbose ${{ matrix.features }}
       - name: Run tests
-        run: cargo test --verbose ${{ matrix.features }}
+        run: cargo test --verbose ${{ matrix.features }} --lib
+
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build
+        run: cargo build --verbose
+      - name: Run tests
+        run: cargo test --verbose

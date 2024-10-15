@@ -1,8 +1,8 @@
 [package]
 	edition = "2021"
 	name = "fmt-interspersed"
-	rust-version = "1.56"
-	version = "0.2.9"
+	rust-version = "1.65"
+	version = "0.3.0"
 
 	description = "A crate to write an iterator's items, interspersed with a separator, to a destination"
 	license = "MIT"

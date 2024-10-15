@@ -26,7 +26,7 @@ macro_rules! __write_interspersed_impl {
 				return err;
 			}
 			for $arg in iter {
-				if let err @ ::core::result::Result::Err(_) = write!(writer, "{}", separator) {
+				if let err @ ::core::result::Result::Err(_) = write!(writer, "{separator}") {
 					return err;
 				}
 				if let err @ ::core::result::Result::Err(_) = write!(writer, $($fmt)*) {
@@ -36,7 +36,7 @@ macro_rules! __write_interspersed_impl {
 		}
 	}};
 	($writer:expr, $iter:expr, $separator:expr $(,)?) => {
-		$crate::__write_interspersed_impl!($writer, $iter, $separator, x => "{}", x)
+		$crate::__write_interspersed_impl!($writer, $iter, $separator, x => "{x}")
 	};
 }
 
@@ -179,13 +179,13 @@ macro_rules! __print_interspersed_impl {
 		if let ::core::option::Option::Some($arg) = iter.next() {
 			$print!($($fmt)*);
 			for $arg in iter {
-				$print!("{}", separator);
+				$print!("{separator}");
 				$print!($($fmt)*);
 			}
 		}
 	};
 	(print = $print:path; $iter:expr, $separator:expr $(,)?) => {
-		$crate::__print_interspersed_impl!(print = $print; $iter, $separator, x => "{}", x)
+		$crate::__print_interspersed_impl!(print = $print; $iter, $separator, x => "{x}")
 	};
 }
 
