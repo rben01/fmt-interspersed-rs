@@ -54,11 +54,12 @@ macro_rules! writeln_interspersed {
 #[doc(hidden)]
 macro_rules! __print_interspersed_impl {
 	(print = $print:path; $iter:expr, $separator:expr, $arg:pat_param => $($fmt:tt)*) => {
+		let separator = $separator;
 		let mut iter = $iter.into_iter();
 		if let ::core::option::Option::Some($arg) = iter.next() {
 			$print!($($fmt)*);
 			for $arg in iter {
-				$print!("{}", $separator);
+				$print!("{}", separator);
 				$print!($($fmt)*);
 			}
 		}
