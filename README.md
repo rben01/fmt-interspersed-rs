@@ -5,6 +5,8 @@
 [![docs.rs](https://img.shields.io/docsrs/fmt-interspersed)](https://docs.rs/fmt-interspersed/latest/fmt_interspersed/)
 [![crates.io](https://img.shields.io/crates/v/fmt-interspersed.svg)](https://crates.io/crates/fmt-interspersed)
 [![msrv](https://img.shields.io/crates/msrv/fmt-interspersed.svg)](https://blog.rust-lang.org/2022/11/03/Rust-1.65.0.html)
+[![MIT licensed](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/rben01/fmt-interspersed-rs/blob/main/LICENSE)
+
 
 
 This crate provides analogs of the
