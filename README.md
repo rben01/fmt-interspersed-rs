@@ -1,6 +1,12 @@
 <!-- begin -->
 # fmt-interspersed
 
+[![build](https://img.shields.io/github/actions/workflow/status/rben01/fmt-interspersed-rs/rust.yml?branch=main)](https://github.com/rben01/fmt-interspersed-rs/actions?query=branch%3Amain)
+[![docs.rs](https://img.shields.io/docsrs/fmt-interspersed)](https://docs.rs/fmt-interspersed/latest/fmt_interspersed/)
+[![crates.io](https://img.shields.io/crates/v/fmt-interspersed.svg)](https://crates.io/crates/fmt-interspersed)
+[![msrv](https://img.shields.io/crates/msrv/fmt-interspersed.svg)](https://blog.rust-lang.org/2022/11/03/Rust-1.65.0.html)
+
+
 This crate provides analogs of the
 [`std::fmt`](https://doc.rust-lang.org/std/fmt/index.html) macros such as
 [`format!`](https://doc.rust-lang.org/std/macro.format.html) and
@@ -46,7 +52,7 @@ allocating any intermediate strings:
 <!-- end -->
 
 ```rust
-// as with `write!`, the necessary trait for writing, either `fmt::Write` 
+// as with `write!`, the necessary trait for writing, either `fmt::Write`
 // (for strings) or `io::Write` (for files or other byte sinks), must be in scope
 use std::fmt::Write;
 
