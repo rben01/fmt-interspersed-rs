@@ -1,13 +1,12 @@
 <!-- begin -->
 # fmt-interspersed
 
-[![build](https://img.shields.io/github/actions/workflow/status/rben01/fmt-interspersed-rs/rust.yml?branch=main)](https://github.com/rben01/fmt-interspersed-rs/actions?query=branch%3Amain)
-[![docs.rs](https://img.shields.io/docsrs/fmt-interspersed)](https://docs.rs/fmt-interspersed/latest/fmt_interspersed/)
-[![crates.io](https://img.shields.io/crates/v/fmt-interspersed.svg)](https://crates.io/crates/fmt-interspersed)
-[![msrv](https://img.shields.io/crates/msrv/fmt-interspersed.svg)](https://blog.rust-lang.org/2022/11/03/Rust-1.65.0.html)
-[![MIT licensed](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/rben01/fmt-interspersed-rs/blob/main/LICENSE)
-
-
+[![github](https://img.shields.io/badge/rben01-fmt--interspersed--rs-_?logo=github)](https://github.com/rben01/fmt-interspersed-rs)
+[![build](https://img.shields.io/github/actions/workflow/status/rben01/fmt-interspersed-rs/main.yml?branch=main&logo=github)](https://github.com/rben01/fmt-interspersed-rs/actions?query=branch%3Amain)
+[![license](https://img.shields.io/crates/l/fmt-interspersed)](https://github.com/rben01/fmt-interspersed-rs/blob/main/LICENSE)
+[![crates.io](https://img.shields.io/crates/v/fmt-interspersed.svg?logo=rust)](https://crates.io/crates/fmt-interspersed)
+[![docs.rs](https://img.shields.io/badge/docs.rs-fmt--interspersed-1F80C0?logo=docs.rs)](https://docs.rs/fmt-interspersed/latest/fmt_interspersed/)
+[![msrv](https://img.shields.io/crates/msrv/fmt-interspersed.svg?logo=rust&color=FFC833)](https://blog.rust-lang.org/2022/11/03/Rust-1.65.0.html)
 
 This crate provides analogs of the
 [`std::fmt`](https://doc.rust-lang.org/std/fmt/index.html) macros such as
@@ -24,6 +23,32 @@ use fmt_interspersed::prelude::*;
 
 let s = "abc";
 assert_eq!("a0b0c", format_interspersed!(s.chars(), 0));
+```
+
+<!-- begin -->
+
+Without this crate, the above would look something like the following. (Indeed, the
+implementation of `format_interspersed!` is nearly identical.)
+
+<!-- end -->
+
+```rust
+use std::fmt::Write;
+
+let mut buf = String::new();
+let s = "abc";
+let sep = 0;
+
+let mut iter = s.chars();
+if let Some(c) = iter.next() {
+    write!(buf, "{c}").unwrap();
+    for c in iter {
+        write!(buf, "{sep}").unwrap();
+        write!(buf, "{c}").unwrap();
+    }
+}
+
+assert_eq!("a0b0c", buf);
 ```
 
 <!-- begin -->
