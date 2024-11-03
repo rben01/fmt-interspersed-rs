@@ -59,7 +59,7 @@ allocating any intermediate strings:
 use std::fmt::Write;
 
 let mut buf = String::new();
-write_interspersed!(&mut buf, 1_i32..=5, '-', n => "{:02}", n.pow(2))?;
+write_interspersed!(buf, 1_i32..=5, '-', n => "{:02}", n.pow(2))?;
 assert_eq!("01-04-09-16-25", buf);
 ```
 
@@ -70,8 +70,8 @@ assert_eq!("01-04-09-16-25", buf);
 use std::io::{Cursor, Write};
 
 let mut buf = Cursor::new(Vec::<u8>::new());
-writeln_interspersed!(&mut buf, "abc".bytes(), ',', b => "{}", b - b'a')?;
-write_interspersed!(&mut buf, "abc".bytes(), ',', b => "{}", (b - b'a' + b'A') as char)?;
+writeln_interspersed!(buf, "abc".bytes(), ',', b => "{}", b - b'a')?;
+write_interspersed!(buf, "abc".bytes(), ',', b => "{}", (b - b'a' + b'A') as char)?;
 assert_eq!("0,1,2\nA,B,C", String::from_utf8(buf.into_inner()).unwrap());
 ```
 

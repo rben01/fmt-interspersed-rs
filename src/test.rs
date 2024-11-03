@@ -84,11 +84,11 @@ fn test_str_write() -> core::fmt::Result {
 	macro_rules! test_case {
 		($expected:expr, $($args:tt)*) => {{
 			let mut buf = alloc::string::String::new();
-			write_interspersed!(&mut buf, $($args)*)?;
+			write_interspersed!(buf, $($args)*)?;
 			assert_eq!($expected, buf);
 
 			let mut buf = alloc::string::String::new();
-			writeln_interspersed!(&mut buf, $($args)*)?;
+			writeln_interspersed!(buf, $($args)*)?;
 			let mut expected = $expected.to_string();
 			expected.push('\n');
 			assert_eq!(expected, buf);
@@ -124,11 +124,11 @@ fn test_io_write() -> std::io::Result<()> {
 	macro_rules! test_case {
 		($expected:expr, $($args:tt)*) => {{
 			let mut buf = Cursor::new(Vec::new());
-			write_interspersed!(&mut buf, $($args)*)?;
+			write_interspersed!(buf, $($args)*)?;
 			eq($expected, buf);
 
 			let mut buf = Cursor::new(Vec::new());
-			writeln_interspersed!(&mut buf, $($args)*)?;
+			writeln_interspersed!(buf, $($args)*)?;
 			let mut expected = $expected.to_string();
 			expected.push('\n');
 			eq(&expected, buf);

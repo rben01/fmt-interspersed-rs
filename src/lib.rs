@@ -14,7 +14,6 @@ extern crate std;
 macro_rules! __write_interspersed_impl {
 	($writer:expr, $iter:expr, $separator:expr, $arg:pat_param => $($fmt:tt)*) => {{
 		#[allow(unused_mut)]
-		let mut writer = $writer;
 		let separator = $separator;
 
 		let mut iter = $iter.into_iter();
@@ -22,14 +21,14 @@ macro_rules! __write_interspersed_impl {
 		if let ::core::option::Option::Some($arg) = iter.next() {
 			// can't use ? because we need to state that the error type is specifically
 			// that returned by `write!` and not merely `From` it
-			if let err @ ::core::result::Result::Err(_) = write!(writer, $($fmt)*) {
+			if let err @ ::core::result::Result::Err(_) = write!($writer, $($fmt)*) {
 				return err;
 			}
 			for $arg in iter {
-				if let err @ ::core::result::Result::Err(_) = write!(writer, "{separator}") {
+				if let err @ ::core::result::Result::Err(_) = write!($writer, "{separator}") {
 					return err;
 				}
-				if let err @ ::core::result::Result::Err(_) = write!(writer, $($fmt)*) {
+				if let err @ ::core::result::Result::Err(_) = write!($writer, $($fmt)*) {
 					return err;
 				}
 			}
@@ -46,6 +45,10 @@ macro_rules! __write_interspersed_impl {
 /// `write!`, this macro returns a [`Result`] and requires [`std::io::Write`] or
 /// [`std::fmt::Write`] to be in scope, depending on the destination.
 ///
+/// **Important**: do _not_ pass a complicated expression, such as a function call, as
+/// the first argument, as the expression will be evaluated multiple times. Instead,
+/// assign the result to a variable and pass the variable.
+///
 /// Like all macros in this crate, `write_interspersed!` has two forms:
 /// `write_interspersed!(w, iterable, sep)` and `write_interspersed!(w, iterable, sep,
 /// pat => fmt_args)`. Both forms require that `sep` implements
@@ -57,15 +60,32 @@ macro_rules! __write_interspersed_impl {
 /// use std::{fs, io::{Error, Write}};
 ///
 /// let mut f = fs::File::create("test.txt")?;
-/// write_interspersed!(&mut f, 1..=5, ";")?;
+/// write_interspersed!(f, 1..=5, ";")?;
 /// assert_eq!("1;2;3;4;5", fs::read_to_string("test.txt")?);
 ///
 /// let mut f = fs::File::create("test.txt")?;
-/// write_interspersed!(&mut f, [("a", 1), ("b", 2)], ", ", (x, y) => "{x:?} => {y}")?;
+/// write_interspersed!(f, [("a", 1), ("b", 2)], ", ", (x, y) => "{x:?} => {y}")?;
 /// assert_eq!(r#""a" => 1, "b" => 2"#, fs::read_to_string("test.txt")?);
 ///
 /// # fs::remove_file("test.txt")?;
 /// # Ok::<(), Error>(())
+/// ```
+///
+/// ## Caution
+/// If a complex expression such as a function call is passed as the first argument, it
+/// will be evaluated multiple times. If you don't want this, save the expression to a
+/// variable and pass the variable.
+///
+/// ```rust,ignore
+/// use fmt_interspersed::write_interspersed;
+/// use std::{fs, io::{Error, Write}};
+///
+/// // don't do this! it will create and truncate the file multiple times
+/// write_interspersed!(fs::File::create("out")?, 1..=5, ";")?
+///
+/// // do this instead
+/// let mut f = fs::File::create("out")?;
+/// write_interspersed!(f, 1..=5, ";")?
 /// ```
 #[macro_export]
 macro_rules! write_interspersed {
@@ -85,6 +105,10 @@ macro_rules! write_interspersed {
 /// `writeln!`, this macro returns a [`Result`] and requires [`std::io::Write`] or
 /// [`std::fmt::Write`] to be in scope, depending on the destination.
 ///
+/// **Important**: do _not_ pass a complicated expression, such as a function call, as
+/// the first argument, as the expression will be evaluated multiple times. Instead,
+/// assign the result to a variable and pass the variable.
+///
 /// Like all macros in this crate, `writeln_interspersed!` has two forms:
 /// `writeln_interspersed!(w, iterable, sep)` and `writeln_interspersed!(w, iterable,
 /// sep, pat => fmt_args)`. Both forms require that `sep` implements
@@ -96,15 +120,32 @@ macro_rules! write_interspersed {
 /// use std::{fs, io::{Error, Write}};
 ///
 /// let mut f = fs::File::create("test.txt")?;
-/// writeln_interspersed!(&mut f, 1..=5, ";")?;
+/// writeln_interspersed!(f, 1..=5, ";")?;
 /// assert_eq!("1;2;3;4;5\n", fs::read_to_string("test.txt")?);
 ///
 /// let mut f = fs::File::create("test.txt")?;
-/// writeln_interspersed!(&mut f, [("a", 1), ("b", 2)], ", ", (x, y) => "{x:?} => {y}")?;
+/// writeln_interspersed!(f, [("a", 1), ("b", 2)], ", ", (x, y) => "{x:?} => {y}")?;
 /// assert_eq!("\"a\" => 1, \"b\" => 2\n", fs::read_to_string("test.txt")?);
 ///
 /// # fs::remove_file("test.txt")?;
 /// # Ok::<(), Error>(())
+/// ```
+///
+/// ## Caution
+/// If a complex expression such as a function call is passed as the first argument, it
+/// will be evaluated multiple times. If you don't want this, save the expression to a
+/// variable and pass the variable.
+///
+/// ```rust,ignore
+/// use fmt_interspersed::writeln_interspersed;
+/// use std::{fs, io::{Error, Write}};
+///
+/// // don't do this! it will create and truncate the file multiple times
+/// writeln_interspersed!(fs::File::create("out")?, 1..=5, ";")?
+///
+/// // do this instead
+/// let mut f = fs::File::create("out")?;
+/// writeln_interspersed!(f, 1..=5, ";")?
 /// ```
 #[macro_export]
 macro_rules! writeln_interspersed {
@@ -135,7 +176,7 @@ macro_rules! __format_interspersed_impl {
 		let (lower_bd, _) = iter.size_hint();
 		let mut buf = ::alloc::string::String::with_capacity(lower_bd * 2);
 
-		$crate::write_interspersed!(&mut buf, iter, separator $(, $($args)*)?).unwrap();
+		$crate::write_interspersed!(buf, iter, separator $(, $($args)*)?).unwrap();
 
 		buf
 	}};
