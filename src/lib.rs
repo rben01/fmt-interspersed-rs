@@ -7,32 +7,52 @@ extern crate alloc;
 #[cfg(feature = "std")]
 extern crate std;
 
-/// Common underlying implementation of the various `write`-related macros. Must be
-/// wrapped in a function/closure so that the `return` statements make sense.
+#[doc(hidden)]
+#[macro_export]
+macro_rules! __return_if_err {
+	($ex:expr) => {{
+		if let err @ ::core::result::Result::Err(_) = $ex {
+			return err;
+		}
+	}};
+}
+
+// helper trait to force taking variable by `&mut Self` regardless of how it's passed,
+// similar to how `write_fmt` does. more or less copied from
+// https://stackoverflow.com/a/79153906
+#[doc(hidden)]
+pub trait WithMut {
+	fn with_mut<'a, R>(&'a mut self, f: impl FnOnce(&'a mut Self) -> R) -> R;
+}
+
+impl<T> WithMut for T {
+	fn with_mut<'a, R>(&'a mut self, f: impl FnOnce(&'a mut Self) -> R) -> R {
+		f(self)
+	}
+}
+
+/// Common underlying implementation of the various `write`-related macros
 #[doc(hidden)]
 #[macro_export]
 macro_rules! __write_interspersed_impl {
 	($writer:expr, $iter:expr, $separator:expr, $arg:pat_param => $($fmt:tt)*) => {{
-		#[allow(unused_mut)]
-		let separator = $separator;
+		use $crate::WithMut;
 
+		let separator = $separator;
 		let mut iter = $iter.into_iter();
 
-		if let ::core::option::Option::Some($arg) = iter.next() {
-			// can't use ? because we need to state that the error type is specifically
-			// that returned by `write!` and not merely `From` it
-			if let err @ ::core::result::Result::Err(_) = write!($writer, $($fmt)*) {
-				return err;
-			}
-			for $arg in iter {
-				if let err @ ::core::result::Result::Err(_) = write!($writer, "{separator}") {
-					return err;
-				}
-				if let err @ ::core::result::Result::Err(_) = write!($writer, $($fmt)*) {
-					return err;
+		$writer.with_mut(move |w| {
+			if let ::core::option::Option::Some($arg) = iter.next() {
+				// can't use ? because we need to state that the error type is specifically
+				// that returned by `write!` and not merely `From` it
+				$crate::__return_if_err!(write!(w, $($fmt)*));
+				for $arg in iter {
+					$crate::__return_if_err!(write!(w, "{separator}"));
+					$crate::__return_if_err!(write!(w, $($fmt)*));
 				}
 			}
-		}
+			::core::result::Result::Ok(())
+		})
 	}};
 	($writer:expr, $iter:expr, $separator:expr $(,)?) => {
 		$crate::__write_interspersed_impl!($writer, $iter, $separator, x => "{x}")
@@ -44,10 +64,6 @@ macro_rules! __write_interspersed_impl {
 /// Writes an iterable’s items, separated by a separator, to a destination. Like
 /// `write!`, this macro returns a [`Result`] and requires [`std::io::Write`] or
 /// [`std::fmt::Write`] to be in scope, depending on the destination.
-///
-/// **Important**: do _not_ pass a complicated expression, such as a function call, as
-/// the first argument, as the expression will be evaluated multiple times. Instead,
-/// assign the result to a variable and pass the variable.
 ///
 /// Like all macros in this crate, `write_interspersed!` has two forms:
 /// `write_interspersed!(w, iterable, sep)` and `write_interspersed!(w, iterable, sep,
@@ -70,28 +86,11 @@ macro_rules! __write_interspersed_impl {
 /// # fs::remove_file("test.txt")?;
 /// # Ok::<(), Error>(())
 /// ```
-///
-/// ## Caution
-/// If a complex expression such as a function call is passed as the first argument, it
-/// will be evaluated multiple times. If you don't want this, save the expression to a
-/// variable and pass the variable.
-///
-/// ```rust,ignore
-/// use fmt_interspersed::write_interspersed;
-/// use std::{fs, io::{Error, Write}};
-///
-/// // don't do this! it will create and truncate the file multiple times
-/// write_interspersed!(fs::File::create("out")?, 1..=5, ";")?
-///
-/// // do this instead
-/// let mut f = fs::File::create("out")?;
-/// write_interspersed!(f, 1..=5, ";")?
-/// ```
 #[macro_export]
 macro_rules! write_interspersed {
 	($writer:expr, $($args:tt)*) => {{
 		(|| {
-			$crate::__write_interspersed_impl!($writer, $($args)*);
+			$crate::__return_if_err!($crate::__write_interspersed_impl!($writer, $($args)*));
 
 			::core::result::Result::Ok(())
 		})()
@@ -104,10 +103,6 @@ macro_rules! write_interspersed {
 /// Writes an iterable’s items, separated by a separator, to a destination. Like
 /// `writeln!`, this macro returns a [`Result`] and requires [`std::io::Write`] or
 /// [`std::fmt::Write`] to be in scope, depending on the destination.
-///
-/// **Important**: do _not_ pass a complicated expression, such as a function call, as
-/// the first argument, as the expression will be evaluated multiple times. Instead,
-/// assign the result to a variable and pass the variable.
 ///
 /// Like all macros in this crate, `writeln_interspersed!` has two forms:
 /// `writeln_interspersed!(w, iterable, sep)` and `writeln_interspersed!(w, iterable,
@@ -130,28 +125,11 @@ macro_rules! write_interspersed {
 /// # fs::remove_file("test.txt")?;
 /// # Ok::<(), Error>(())
 /// ```
-///
-/// ## Caution
-/// If a complex expression such as a function call is passed as the first argument, it
-/// will be evaluated multiple times. If you don't want this, save the expression to a
-/// variable and pass the variable.
-///
-/// ```rust,ignore
-/// use fmt_interspersed::writeln_interspersed;
-/// use std::{fs, io::{Error, Write}};
-///
-/// // don't do this! it will create and truncate the file multiple times
-/// writeln_interspersed!(fs::File::create("out")?, 1..=5, ";")?
-///
-/// // do this instead
-/// let mut f = fs::File::create("out")?;
-/// writeln_interspersed!(f, 1..=5, ";")?
-/// ```
 #[macro_export]
 macro_rules! writeln_interspersed {
 	($writer:expr, $($args:tt)*) => {{
 		(|| {
-			$crate::__write_interspersed_impl!($writer, $($args)*);
+			$crate::__return_if_err!($crate::__write_interspersed_impl!($writer, $($args)*));
 			writeln!($writer)?;
 
 			::core::result::Result::Ok(())
